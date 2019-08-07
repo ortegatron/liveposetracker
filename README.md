@@ -8,14 +8,16 @@ This trackers detects bodies on the video captured by the main camera, assigns a
 
 This is the same code used for the analysis of the video, but working directly on the camera input. I can't test the code now but some people asked for it so here it is. Should be enough to clarify ideas about the OpenPose and Deep SORT integration.
 
+Updated to work with OpenPose v1.5.0! Make sure you installed the Python API.
+
 See more at https://www.youtube.com/watch?v=GIJjyjeFmF8
 
 * [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose)
-* [Deep SORT](https://github.com/nwojke/deep_sort) 
+* [Deep SORT](https://github.com/nwojke/deep_sort)
 
 ## Set up
 ### Prerequisites
-* [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) - For body detection.
+* [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) - For body detection. Install the Python API!
 * OpenCv - Used for image manipulation
 * PyGame - Used to simplify the workflow of Input - Output.
 * Numpy, ConfigParser, etc.

@@ -5,12 +5,10 @@ import time
 import numpy as np
 
 import pygame
-# Cargar OpenPose:
+# Load OpenPose:
 sys.path.append('/usr/local/python')
-from openpose import *
-# from utils import poses2boxes
-# from pymongo import MongoClient
-# import json
+from openpose import pyopenpose as op
+
 
 from deep_sort.iou_matching import iou_cost
 from deep_sort.kalman_filter import KalmanFilter
@@ -29,19 +27,12 @@ class Input():
     def __init__(self, debug = False):
         #from openpose import *
         params = dict()
-        params["logging_level"] = 3
-        params["output_resolution"] = "-1x-1"
-        params["net_resolution"] = "160x160"
-        params["model_pose"] = "BODY_25"
-        params["alpha_pose"] = 0.6
-        params["scale_gap"] = 0.3
-        params["scale_number"] = 1
-        params["render_threshold"] = 0.05
-        params["num_gpu_start"] = 0
-        params["disable_blending"] = False
-        # Ensure you point to the correct path where models are located
-        params["default_model_folder"] = Constants.PATH + "/models/"
-        self.openpose = OpenPose(params)
+        params["model_folder"] = Constants.openpose_modelfolder
+        params["net_resolution"] = "-1x320"
+        self.openpose = op.WrapperPython()
+        self.openpose.configure(params)
+        self.openpose.start()
+
 
         max_cosine_distance = Constants.max_cosine_distance
         nn_budget = Constants.nn_budget
@@ -71,7 +62,11 @@ class Input():
 
     def run(self):
         result, self.currentFrame = self.capture.read()
-        keypoints, self.currentFrame = self.openpose.forward(self.currentFrame, display = True)
+        datum = op.Datum()
+        datum.cvInputData = self.currentFrame
+        self.openpose.emplaceAndPop([datum])
+
+        keypoints, self.currentFrame = np.array(datum.poseKeypoints), datum.cvOutputData
         # print(keypoints)
         # Doesn't use keypoint confidence
         poses = keypoints[:,:,:2]
@@ -99,11 +94,9 @@ class Input():
             else:
                 color = (255,255,255)
             bbox = track.to_tlbr()
+            print("Body keypoints:")
+            print(track.last_seen_detection.pose)
             cv2.rectangle(self.currentFrame, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])),color, 2)
             cv2.putText(self.currentFrame, "id%s - ts%s"%(track.track_id,track.time_since_update),(int(bbox[0]), int(bbox[1])-20),0, 5e-3 * 200, (0,255,0),2)
 
-
-        # self.currentFrame = np.rot90(self.currentFrame)
-        # self.currentFrame = cv2.flip(self.currentFrame, 1)
-        # self.updateState()
         cv2.waitKey(1)
