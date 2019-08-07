@@ -28,6 +28,8 @@ See more at https://www.youtube.com/watch?v=GIJjyjeFmF8
 - **Constants.py**: Screen resolution and tracker parameters.
 - **Constants.py**: Openpose parameters.
 
+### Run
+On folder src, just do python Twister.py
 
 ### System design
 Most of the work is done on Input.py. There, the current frame is processed with OpenPose to get body parts detections, and the bounding boxes for those detections are feed into the Deep SORT tracker. These boxes and the given ids are shown on the screen using simple OpenCV.
